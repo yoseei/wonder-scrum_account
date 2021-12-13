@@ -18,6 +18,17 @@ export type Scalars = {
   HexColor: any;
 };
 
+/** Account schema */
+export type Account = Node &
+  Record & {
+    __typename?: "Account";
+    id: Scalars["ID"];
+    email: Scalars["String"];
+    username: Scalars["String"];
+    createdAt: Scalars["DateTime"];
+    updatedAt: Scalars["DateTime"];
+  };
+
 export type Mutation = {
   __typename?: "Mutation";
   /** Account */
@@ -26,6 +37,11 @@ export type Mutation = {
 
 export type MutationUpdateAccountArgs = {
   input: UpdateAccountInput;
+};
+
+/** Node interface for Realy specification */
+export type Node = {
+  id: Scalars["ID"];
 };
 
 export type Query = {
@@ -40,27 +56,11 @@ export type QueryNodeArgs = {
   id: Scalars["ID"];
 };
 
-/** Node interface for Realy specification */
-export type Node = {
-  id: Scalars["ID"];
-};
-
 /** Record provides createdAt, updatedAt */
 export type Record = {
   createdAt: Scalars["DateTime"];
   updatedAt: Scalars["DateTime"];
 };
-
-/** Account schema */
-export type Account = Node &
-  Record & {
-    __typename?: "Account";
-    id: Scalars["ID"];
-    email: Scalars["String"];
-    username: Scalars["String"];
-    createdAt: Scalars["DateTime"];
-    updatedAt: Scalars["DateTime"];
-  };
 
 export type UpdateAccountInput = {
   username?: Maybe<Scalars["String"]>;

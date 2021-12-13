@@ -66,3 +66,70 @@ schema {
   query: Query
   mutation: Mutation
 }
+
+#"""
+# Mutation
+#
+# @developer: アルファベット順(ドメインの　e.g. => Account, Bxxx...)に並べてください
+#
+#"""
+
+type Mutation {
+    # Account周り
+    signUpAccount(input: SignUpAccountInput!): SignUpAccountPayload
+    logInAccount(input: LogInAccountInput!): LogInAccountPayload
+    updateAccount(input: UpdateAccountInput!): UpdateAccountPayload
+    deleteAccount(input: DeleteAccountInput!): DeleteAccountPayload
+
+    # Project周り
+    createProject(input: CreateProjectInput!): CreateProjectPayload
+    updateProject(input: UpdateAccountInput!): UpdateProjectPayload
+    deleteProject(input: DeleteProjectInput!): DeleteProjectPayload
+    inviteProjectMembers(
+      input: InviteProjectMembersInput!
+    ): InviteProjectMembersPayload
+    updateProjectMembership(
+      input: UpdateProjectMembershipInput!
+    ): UpdateProjectMembershipPayload
+    deleteProjcetMembership(
+      input: DeleteProjectMembershipInput!
+    ): DeleteProjectMembershipPayload
+
+    # Task周り
+    createTask(input: CreateTaskInput!): CreateTaskPayload
+    updateTask(input: UpdateTaskInput!): UpdateTaskPayload
+}
+
+#"""
+# Query
+#
+# @developer: アルファベット順(ドメインの　e.g. => Account, Bxxxx...)に並べてください
+#
+#"""
+
+type Query {
+    """
+    Fetches an object given its ID.
+    """
+    node(id: ID!): Node
+
+    # Account周り
+    currentAccount: Account
+}
+
+type PageInfo {
+    hasPreviousPage: Boolean!
+    startCursor: String
+    hasNextPage: Boolean!
+    endCursor: String
+}
+
+# 日時関連
+scalar Date
+scalar DateTime
+
+"画像をbase64で扱う"
+scalar EncodedImage
+
+"#なしの16進数カラー(3けたor6ケタ)"
+scalar HexColor
