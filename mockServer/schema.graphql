@@ -1,8 +1,22 @@
 type Mutation {
 
-  # Account
-  "Account"
+  # Account周り
+  signUpAccount(input: SignUpAccountInput!): SignUpAccountPayload
+  logInAccount(input: LogInAccountInput!): LogInAccountPayload
   updateAccount(input: UpdateAccountInput!): UpdateAccountPayload
+  deleteAccount(input: DeleteAccountInput!): DeleteAccountPayload
+
+  # Project周り
+  createProject(input: CreateProjectInput!): CreateProjectPayload
+  updateProject(input: UpdateAccountInput!): UpdateProjectPayload
+  deleteProject(input: DeleteProjectInput!): DeleteProjectPayload
+  inviteProjectMembers(input: InviteProjectMembersInput!): InviteProjectMembersPayload
+  updateProjectMembership(input: UpdateProjectMembershipInput!): UpdateProjectMembershipPayload
+  deleteProjcetMembership(input: DeleteProjectMembershipInput!): DeleteProjectMembershipPayload
+
+  # Task周り
+  createTask(input: CreateTaskInput!): CreateTaskPayload
+  updateTask(input: UpdateTaskInput!): UpdateTaskPayload
 }
 
 type Query {
@@ -13,15 +27,26 @@ type Query {
   """
   node(id: ID!): Node
 
-  # Account
-  "Account"
+  # Account周り
   currentAccount: Account
 }
 
+type PageInfo {
+  hasPreviousPage: Boolean!
+  startCursor: String
+  hasNextPage: Boolean!
+  endCursor: String
+}
+
+
+# 日時関連
 scalar Date
 
 scalar DateTime
 
+
+# 画像をbase64で扱う
+"画像をbase64で扱う"
 scalar EncodedImage
 
 
@@ -29,11 +54,148 @@ scalar EncodedImage
 "#なしの16進数カラー(3けたor6ケタ)"
 scalar HexColor
 
+
+# SignUpAccount
+input SignUpAccountInput {
+  username: String!
+  email: String!
+  avatarUrl: String
+  password: String!
+  passwordConfirmation: String!
+}
+
+type SignUpAccountPayload {
+  account: Account
+}
+
+
+# LogInAccount
+input LogInAccountInput {
+  email: String!
+  password: String!
+}
+
+type LogInAccountPayload {
+  account: Account
+}
+
+input UpdateAccountInput {
+  accountId: ID!
+  username: String
+  email: String
+}
+
+type UpdateAccountPayload {
+  account: Account
+}
+
+
+# DeleteAccount
+input DeleteAccountInput {
+  accountId: ID!
+}
+
+type DeleteAccountPayload {
+  account: Account
+}
+
+
+# CreateProject
+input CreateProjectInput {
+  title: String!
+}
+
+type CreateProjectPayload {
+  project: Project
+}
+
+
+# UpdateProject
+input UpdateProjectInput {
+  projectId: ID!
+  title: String
+}
+
+type UpdateProjectPayload {
+  project: Project
+}
+
+
+# DeleteProject
+input DeleteProjectInput {
+  projectId: ID!
+}
+
+type DeleteProjectPayload {
+  project: Project
+}
+
+
+# InviteProjectMembers
+input InviteProjectMembersInput {
+  projectId: ID!
+  emails: [String!]
+}
+
+type InviteProjectMembersPayload {
+  projectMemberships(first: Int, after: String, last: Int, before: String): ProjectMembershipConnection
+}
+
+
+# UpdateProjectMembership
+input UpdateProjectMembershipInput {
+  projectMembershipId: ID!
+  role: ProjectMembershipRole
+}
+
+type UpdateProjectMembershipPayload {
+  projectMembership: ProjectMembership
+}
+
+
+#  DeleteProjectMembership
+# # 招待を断るときやキャンセルする時もこちら
+input DeleteProjectMembershipInput {
+  proejctMemebershipId: ID!
+}
+
+type DeleteProjectMembershipPayload {
+  projectMembership: ProjectMembership
+}
+
+
+# CreateTask
+input CreateTaskInput {
+  name: String!
+  assigneeIds: [ID!]
+  state: TaskState
+}
+
+type CreateTaskPayload {
+  task: Task
+}
+
+
+# UpdateTask
+input UpdateTaskInput {
+  taskId: ID!
+  name: String
+  assigneeIds: [ID!]
+  state: TaskState
+  closed: Boolean
+}
+
+type UpdateTaskPayload {
+  task: Task
+}
+
+
 # Node interface for Realy specification
 "Node interface for Realy specification"
 interface Node {
   id: ID!
 }
+
 
 # Record provides createdAt, updatedAt
 "Record provides createdAt, updatedAt"
@@ -43,23 +205,126 @@ interface Record {
 }
 
 
-# Account schema
-"Account schema"
+# Account Object
+"Account Object"
 type Account implements Node & Record {
   id: ID!
   email: String!
   username: String!
+  avatarUrl: String
+  projectInvitations(first: Int, after: String, last: Int, before: String): ProjectMembershipConnection
 
+  # こちらは参加しているプロジェクトのみ
+  projects(first: Int, after: String, last: Int, before: String): ProjectConnection!
+  tasks(first: Int, after: String, last: Int, before: String, state: [TaskState!]): TaskConnection!
   createdAt: DateTime!
   updatedAt: DateTime!
 }
 
-input UpdateAccountInput {
-  username: String
+type AccountEdge {
+  cursor: String!
+  node: Account
 }
 
-type UpdateAccountPayload {
-  account: Account
+type AccountConnection {
+  pageInfo: PageInfo!
+  edges: [AccountEdge]
+}
+
+
+# Project Object
+"Project Object"
+type Project implements Node & Record {
+  id: ID!
+  title: String!
+
+  # プロジェクト作成者
+  "プロジェクト作成者"
+  creator: Account
+  memberships(first: Int, after: String, last: Int, before: String, state: [ProjectMembershipState], role: [ProjectMembershipRole]): ProjectMembershipConnection!
+  tasks(first: Int, after: String, last: Int, before: String, state: [TaskState]): TaskConnection!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type ProjectEdge {
+  cursor: String!
+  node: Project
+}
+
+type ProjectConnection {
+  pageInfo: PageInfo!
+  edges: [ProjectEdge]
+}
+
+
+# Project Membership Object
+"Project Membership Object"
+type ProjectMembership implements Node & Record {
+  id: ID!
+  role: ProjectMembershipRole
+  state: ProjectMembershipState!
+  project: Project!
+  account: Account!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+enum ProjectMembershipRole {
+  OWNER
+  ADMIN
+  GENERAL
+}
+
+enum ProjectMembershipState {
+  INVITING
+  ACTIVE
+  INACTIVE
+}
+
+type ProjectMembershipEdge {
+  cursor: String!
+  node: ProjectMembership
+}
+
+type ProjectMembershipConnection {
+  pageInfo: PageInfo!
+  edges: [ProjectMembershipEdge]
+}
+
+
+# Task Object
+"Task Object"
+type Task implements Node & Record {
+  id: ID!
+  name: String!
+  state: TaskState!
+  closed: Boolean!
+
+  # 作成者
+  "作成者"
+  creator: Account
+  assignees: AccountConnection!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+enum TaskState {
+  TO_DO
+  THIS_WEEK
+  TODAY
+  DOING
+  DONE
+}
+
+type TaskEdge {
+  cursor: String!
+  node: Task
+}
+
+type TaskConnection {
+  pageInfo: PageInfo!
+  edges: [TaskEdge]
 }
 
 schema {

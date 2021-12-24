@@ -42,7 +42,7 @@ const errorLink = onError(({ graphQLErrors, networkError, operation }) => {
 });
 
 const client = new ApolloClient({
-  link: ApolloLink.from([(fragmentLink as unknown) as ApolloLink, errorLink, authLink, httpLink]),
+  link: ApolloLink.from([fragmentLink as unknown as ApolloLink, errorLink, authLink, httpLink]),
   cache,
 });
 

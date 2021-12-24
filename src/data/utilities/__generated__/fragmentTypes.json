@@ -7,6 +7,15 @@
         "possibleTypes": [
           {
             "name": "Account"
+          },
+          {
+            "name": "Project"
+          },
+          {
+            "name": "ProjectMembership"
+          },
+          {
+            "name": "Task"
           }
         ]
       },
@@ -16,6 +25,15 @@
         "possibleTypes": [
           {
             "name": "Account"
+          },
+          {
+            "name": "Project"
+          },
+          {
+            "name": "ProjectMembership"
+          },
+          {
+            "name": "Task"
           }
         ]
       }

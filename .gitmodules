@@ -1,0 +1,3 @@
+[submodule "wonder_scrum_schema"]
+	path = wonder_scrum_schema
+	url = git@github.com:coadmap/wonder_scrum_schema.git
